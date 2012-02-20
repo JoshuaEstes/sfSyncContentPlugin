@@ -33,7 +33,15 @@ class sfSyncContentTools
   
   static public function shellDatabaseParams($params)
   {
-    return '-u ' . escapeshellarg($params['username']) . ' -p' . escapeshellarg($params['password']) . ' -h ' . escapeshellarg($params['host']) . ' ' . escapeshellarg($params['dbname']);
+    $opts = '-u ' . escapeshellarg($params['username']) . ' -p' . escapeshellarg($params['password']) . ' -h ' . escapeshellarg($params['host']);
+    // teacurran, #1222: nice to be able to specify a mysql port
+    if (isset($params['port']))
+    {
+      $opts .= ' -P ' . escapeshellarg($params['port']);
+    }
+    $opts .= ' ' . escapeshellarg($params['dbname']);
+    var_dump($opts);
+    return $opts;
   }
   
 }
