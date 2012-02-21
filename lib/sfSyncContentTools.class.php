@@ -40,7 +40,6 @@ class sfSyncContentTools
       $opts .= ' -P ' . escapeshellarg($params['port']);
     }
     $opts .= ' ' . escapeshellarg($params['dbname']);
-    var_dump($opts);
     return $opts;
   }
   
