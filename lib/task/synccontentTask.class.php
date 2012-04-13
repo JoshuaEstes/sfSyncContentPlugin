@@ -42,7 +42,8 @@ class sfSyncContentTask extends sfBaseTask
       new sfCommandOption('connection', null, sfCommandOption::PARAMETER_REQUIRED, 'The connection name', 'doctrine'),
       new sfCommandOption('application', null, sfCommandOption::PARAMETER_REQUIRED, 'The application name', 'frontend'),
       new sfCommandOption('file', null, sfCommandOption::PARAMETER_REQUIRED, 'Your XML file of page data', null),
-      new sfCommandOption('pages', null, sfCommandOption::PARAMETER_REQUIRED, 'Directory of page xml files', null)
+      new sfCommandOption('pages', null, sfCommandOption::PARAMETER_REQUIRED, 'Directory of page xml files', null),
+      new sfCommandOption('gzip', null, sfCommandOption::PARAMETER_NONE, 'Use gzip', null)
       // add your own options here
     ));
 
@@ -91,7 +92,15 @@ EOF;
     }
     $envRemote = $matches[1];
     $site = $matches[2];
-    
+ 
+    $gzip = "";
+    $gunzip = "";
+    if ($this->setOptions['gzip'])
+    {
+      $gzip = " | gzip ";
+      $gunzip = " | gunzip ";
+    }
+
     $found = false;
     foreach ($settings as $section => $data)
     {
@@ -125,12 +134,12 @@ EOF;
     // correct environment not being loaded and removes duplicate code
     if ($direction == 'to')
     {
-      $cmd = "$binary project:mysql-dump --application=$application --env=$env | " . $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-load --application=$application --env=$envRemote");
+      $cmd = "$binary project:mysql-dump --application=$application --env=$env " . $gzip . " | " . $this->_content_sync_build_remote_cmd($pathRemote, " " . $gunzip . "| ./symfony project:mysql-load --application=$application --env=$envRemote");
       $this->_content_sync_system($cmd);
     }
     else
     {
-      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote") . " | $binary project:mysql-load --application=$application --env=$env";
+      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote " . $gzip) . " " . $gunzip . " | $binary project:mysql-load --application=$application --env=$env";
       $this->_content_sync_system($cmd);
     }
     
