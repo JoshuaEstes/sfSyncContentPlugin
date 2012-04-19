@@ -97,8 +97,13 @@ EOF;
     $gunzip = "";
     if ($this->setOptions['gzip'])
     {
-      $gzip = " | gzip ";
-      $gunzip = " | gunzip ";
+      $gzip = "gzip";
+      $gunzip = "gunzip";
+    }
+    else
+    {
+      $gzip = 'cat';
+      $gunzip = 'cat';
     }
 
     $found = false;
@@ -134,12 +139,12 @@ EOF;
     // correct environment not being loaded and removes duplicate code
     if ($direction == 'to')
     {
-      $cmd = "$binary project:mysql-dump --application=$application --env=$env " . $gzip . " | " . $this->_content_sync_build_remote_cmd($pathRemote, " " . $gunzip . "| ./symfony project:mysql-load --application=$application --env=$envRemote");
+      $cmd = "$binary project:mysql-dump --application=$application --env=$env | " . $gzip . " | " . $this->_content_sync_build_remote_cmd($pathRemote, $gunzip . " | ./symfony project:mysql-load --application=$application --env=$envRemote && ./symfony cc --env=$envRemote");
       $this->_content_sync_system($cmd);
     }
     else
     {
-      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote " . $gzip) . " " . $gunzip . " | $binary project:mysql-load --application=$application --env=$env";
+      $cmd = $this->_content_sync_build_remote_cmd($pathRemote, "./symfony project:mysql-dump --application=$application --env=$envRemote | " . $gzip) . " | " . $gunzip . " | $binary project:mysql-load --application=$application --env=$env && ./symfony cc --env=$env";
       $this->_content_sync_system($cmd);
     }
     
